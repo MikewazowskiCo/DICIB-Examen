@@ -1,3 +1,32 @@
 <!doctype html>
 <html lang="es">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DICIB</title><script>window.location.replace('./index_cyber.html');</script><noscript><meta http-equiv="refresh" content="0;url=./index_cyber.html"></noscript></head><body>Redirigiendo al examen DICIB…</body></html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DICIB — Examen de Conocimientos Previos</title>
+<style>html,body{margin:0;height:100%;background:#01030a;color:#fff;font-family:monospace}#loading{height:100%;display:grid;place-items:center;letter-spacing:.12em;color:#00f6ff}</style>
+</head>
+<body>
+<div id="loading">DICIB // CARGANDO SISTEMA DE EXAMEN...</div>
+<script>
+(async()=>{
+  try{
+    const r=await fetch('./index_cyber.html',{cache:'no-store'});
+    if(!r.ok) throw new Error('No se pudo cargar index_cyber.html');
+    let s=await r.text();
+    const old1=`<div class="result-box">\n   <b>Reporte:</b><br>\n   Tus respuestas fueron enviadas para registro del instructor.\n </div>`;
+    const new1=`<div class="result-box">\n   <b>Reporte:</b><br>\n   <span id="mailStatus">Enviando resultados…</span>\n </div>`;
+    s=s.replace(old1,new1);
+    const old2=`document.getElementById("mailStatus").textContent =\n   emailSent ? "Resultados enviados al instructor correctamente." :\n   "No se pudo confirmar el envío. Verifique la conexión y vuelva a intentarlo.";`;
+    const new2=`const emailSent = await sendResultsByEmail(correct,pct,elapsed);\n document.getElementById("mailStatus").textContent =\n   emailSent ? "Resultados enviados al instructor correctamente." :\n   "No se pudo confirmar el envío. Verifique la conexión y vuelva a intentarlo.";`;
+    s=s.replace(old2,new2);
+    document.open();
+    document.write(s);
+    document.close();
+  }catch(e){
+    document.getElementById('loading').textContent='DICIB // ERROR DE CARGA: '+e.message;
+  }
+})();
+</script>
+</body>
+</html>
