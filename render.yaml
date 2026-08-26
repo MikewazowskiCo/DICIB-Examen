@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: dicib-ctf
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: ALFA_PASSWORD
+        sync: false
+      - key: BRAVO_PASSWORD
+        sync: false
+      - key: CHARLY_PASSWORD
+        sync: false
+      - key: DELTA_PASSWORD
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
