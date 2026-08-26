@@ -1,0 +1,127 @@
+import express from 'express';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import Database from 'better-sqlite3';
+import crypto from 'node:crypto';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const app = express();
+const db = new Database(path.join(__dirname, 'ctf.sqlite'));
+const PORT = Number(process.env.PORT || 8610);
+const SESSION_SECRET = process.env.SESSION_SECRET || 'CHANGE-ME';
+
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(express.json({ limit: '16kb' }));
+app.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }));
+
+const TEAMS = ['ALFA', 'BRAVO', 'CHARLY', 'DELTA'];
+const FLAGS_PER_TEAM = 25;
+
+// Passwords are supplied through environment variables; never commit them to Git.
+const PASSWORDS = {
+  ALFA: process.env.ALFA_PASSWORD,
+  BRAVO: process.env.BRAVO_PASSWORD,
+  CHARLY: process.env.CHARLY_PASSWORD,
+  DELTA: process.env.DELTA_PASSWORD,
+};
+const ADMIN_USER = process.env.ADMIN_USER || 'WAZOWSKI';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+// Session tokens are stored server-side. Only the opaque token is sent to the browser.
+const sessions = new Map();
+
+// Demo flag hashes are placeholders until the final 25x4 flag set is loaded.
+const flagStore = new Map();
+for (const team of TEAMS) {
+  flagStore.set(team, Array.from({ length: FLAGS_PER_TEAM }, (_, i) => ({
+    id: `${team}-${String(i + 1).padStart(2, '0')}`,
+    hash: null,
+  })));
+}
+
+db.exec(`CREATE TABLE IF NOT EXISTS events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  team TEXT NOT NULL,
+  type TEXT NOT NULL,
+  flag_id TEXT,
+  created_at TEXT NOT NULL
+)`);
+
+function sign(value) {
+  return crypto.createHmac('sha256', SESSION_SECRET).update(value).digest('hex');
+}
+
+function newSession(user, role) {
+  const token = crypto.randomBytes(32).toString('hex');
+  sessions.set(token, { user, role, createdAt: Date.now() });
+  return token;
+}
+
+function auth(req, res, next) {
+  const token = req.get('Authorization')?.replace(/^Bearer\s+/i, '');
+  const session = token && sessions.get(token);
+  if (!session) return res.status(401).json({ error: 'No autorizado' });
+  req.session = session;
+  next();
+}
+
+function adminOnly(req, res, next) {
+  if (req.session?.role !== 'admin') return res.status(403).json({ error: 'Solo administrador' });
+  next();
+}
+
+app.post('/api/login', (req, res) => {
+  const user = String(req.body?.user || '').trim().toUpperCase();
+  const password = String(req.body?.password || '');
+  let role = null;
+  if (user === ADMIN_USER && ADMIN_PASSWORD && password === ADMIN_PASSWORD) role = 'admin';
+  else if (TEAMS.includes(user) && PASSWORDS[user] && password === PASSWORDS[user]) role = 'team';
+  else return res.status(401).json({ error: 'Credenciales incorrectas' });
+
+  const token = newSession(user, role);
+  return res.json({ token, user, role });
+});
+
+app.post('/api/logout', auth, (req, res) => {
+  const token = req.get('Authorization')?.replace(/^Bearer\s+/i, '');
+  sessions.delete(token);
+  res.json({ ok: true });
+});
+
+function teamState(team) {
+  const rows = db.prepare('SELECT flag_id FROM events WHERE team = ? AND type = ? ORDER BY id').all(team, 'FLAG_ACCEPTED');
+  const ids = new Set(rows.map(r => r.flag_id));
+  return { team, flags: ids.size, total: FLAGS_PER_TEAM, percent: Math.round(ids.size / FLAGS_PER_TEAM * 100), captured: [...ids] };
+}
+
+app.get('/api/me', auth, (req, res) => {
+  if (req.session.role === 'admin') return res.json({ user: req.session.user, role: 'admin' });
+  res.json({ user: req.session.user, role: 'team', state: teamState(req.session.user) });
+});
+
+app.post('/api/flags/submit', auth, (req, res) => {
+  if (req.session.role !== 'team') return res.status(403).json({ error: 'Solo equipos' });
+  const team = req.session.user;
+  const flagId = String(req.body?.flagId || '').trim().toUpperCase();
+  const answer = String(req.body?.answer || '').trim();
+  const flag = flagStore.get(team)?.find(f => f.id === flagId);
+  if (!flag || !flag.hash) return res.status(400).json({ accepted: false, error: 'FLAG no configurada todavía' });
+  const answerHash = crypto.createHash('sha256').update(answer).digest('hex');
+  if (answerHash !== flag.hash) return res.status(400).json({ accepted: false, error: 'FLAG incorrecta' });
+  const exists = db.prepare('SELECT 1 FROM events WHERE team=? AND flag_id=? AND type=?').get(team, flagId, 'FLAG_ACCEPTED');
+  if (!exists) db.prepare('INSERT INTO events(team,type,flag_id,created_at) VALUES(?,?,?,?)').run(team, 'FLAG_ACCEPTED', flagId, new Date().toISOString());
+  res.json({ accepted: true, state: teamState(team) });
+});
+
+app.get('/api/standings', auth, adminOnly, (req, res) => {
+  const standings = TEAMS.map(teamState).sort((a, b) => b.flags - a.flags);
+  const events = db.prepare('SELECT team,type,flag_id,created_at FROM events ORDER BY id DESC LIMIT 30').all();
+  res.json({ standings, events });
+});
+
+app.use(express.static(path.join(__dirname, '..', 'public')));
+app.get('*', (_req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'index.html')));
+
+app.listen(PORT, () => console.log(`CTF backend listening on port ${PORT}`));
