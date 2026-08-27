@@ -1,0 +1,1 @@
+This marker exists because GitHub Contents API cannot create an empty binary SQLite database safely. The runtime creates server/ctf.sqlite automatically.
