@@ -11,7 +11,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const db = new Database(path.join(__dirname, 'ctf.sqlite'));
 const PORT = Number(process.env.PORT || 8610);
-const SESSION_SECRET = process.env.SESSION_SECRET || 'CHANGE-ME';
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET) console.warn('SESSION_SECRET is not configured; in-memory sessions still work for this instance.');
 
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: '16kb' }));
@@ -54,6 +55,8 @@ function teamState(team) {
   return { team, flags: ids.size, total: FLAGS_PER_TEAM, percent: Math.round(ids.size / FLAGS_PER_TEAM * 100), captured: [...ids] };
 }
 
+app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'dicib-ctf' }));
+
 app.post('/api/login', (req, res) => {
   const user = String(req.body?.user || '').trim().toUpperCase();
   const password = String(req.body?.password || '');
@@ -83,14 +86,11 @@ app.post('/api/flags/submit', auth, (req, res) => {
   const flags = FLAG_HASHES[team] || [];
   const index = flags.findIndex(f => f.id === flagId);
   if (index < 0) return res.status(400).json({ accepted: false, error: 'FLAG no válida para este equipo' });
-
-  // Sequential progression: a team must capture FLAG 01, then 02, etc.
   const previous = index > 0 ? flags[index - 1].id : null;
   if (previous) {
     const unlocked = db.prepare('SELECT 1 FROM events WHERE team=? AND flag_id=? AND type=?').get(team, previous, 'FLAG_ACCEPTED');
     if (!unlocked) return res.status(409).json({ accepted: false, error: 'Primero debes completar la FLAG anterior' });
   }
-
   const answerHash = crypto.createHash('sha256').update(answer, 'utf8').digest('hex');
   if (answerHash !== flags[index].hash) return res.status(400).json({ accepted: false, error: 'FLAG incorrecta' });
   const exists = db.prepare('SELECT 1 FROM events WHERE team=? AND flag_id=? AND type=?').get(team, flagId, 'FLAG_ACCEPTED');
