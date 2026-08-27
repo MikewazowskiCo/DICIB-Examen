@@ -15,7 +15,9 @@ services:
         sync: false
       - key: DELTA_PASSWORD
         sync: false
+      - key: ADMIN_USER
+        value: WAZOWSKI
       - key: ADMIN_PASSWORD
         sync: false
-      - key: JWT_SECRET
+      - key: SESSION_SECRET
         sync: false
