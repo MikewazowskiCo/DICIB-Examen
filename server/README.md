@@ -1,0 +1,1 @@
+The SQLite database file ctf.sqlite is generated automatically by server/server.js at runtime. Do not commit a database file to the repository.
