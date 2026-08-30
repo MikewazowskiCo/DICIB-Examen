@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import Database from 'better-sqlite3';
 import crypto from 'node:crypto';
 import path from 'node:path';
+import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { FLAG_HASHES } from './flags.js';
 
@@ -103,6 +104,14 @@ app.get('/api/standings', auth, adminOnly, (req, res) => {
   const standings = TEAMS.map(teamState).sort((a, b) => b.flags - a.flags);
   const events = db.prepare('SELECT team,type,flag_id,created_at FROM events ORDER BY id DESC LIMIT 30').all();
   res.json({ standings, events });
+});
+
+// Serve the team page with a small visual objective overlay that uses the server's next flag ID.
+app.get('/', (_req, res) => {
+  let html = fs.readFileSync(path.join(__dirname, '..', 'public', 'index.html'), 'utf8');
+  const overlay = `<style>#nextObjective{margin-top:18px;padding:18px;border:1px solid #0b5870;background:rgba(0,0,0,.22);box-shadow:inset 0 0 20px rgba(0,229,255,.03)}#nextObjective .next-id{display:inline-block;margin-top:8px;padding:10px 16px;border:1px solid var(--cyan);color:var(--cyan);font-size:22px;letter-spacing:3px;text-shadow:0 0 12px rgba(0,229,255,.55)}</style><script>(function(){const originalFetch=window.fetch;window.fetch=async function(){const response=await originalFetch.apply(this,arguments);try{const url=String(arguments[0]||'');if(url==='/api/me'){const copy=response.clone();const data=await copy.json();if(data.state){let box=document.getElementById('nextObjective');if(!box){const validator=document.getElementById('submitFlag')?.parentElement;if(validator){box=document.createElement('div');box.id='nextObjective';validator.appendChild(box)}}if(box){box.innerHTML=data.state.next?'<div class="muted">// NEXT OBJECTIVE</div><div class="next-id">'+data.state.next+'</div><div class="muted" style="margin-top:8px">Analiza el siguiente evento de red.</div>':'<div class="ok">// OBJECTIVE COMPLETE // ALL FLAGS CAPTURED</div>'}}}}catch(e){}return response};})();</script>`;
+  html = html.replace('</body>', overlay + '</body>');
+  res.type('html').send(html);
 });
 
 app.use(express.static(path.join(__dirname, '..', 'public')));
