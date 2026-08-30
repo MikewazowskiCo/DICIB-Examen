@@ -52,7 +52,8 @@ function adminOnly(req, res, next) {
 function teamState(team) {
   const rows = db.prepare('SELECT flag_id FROM events WHERE team = ? AND type = ? ORDER BY id').all(team, 'FLAG_ACCEPTED');
   const ids = new Set(rows.map(r => r.flag_id));
-  return { team, flags: ids.size, total: FLAGS_PER_TEAM, percent: Math.round(ids.size / FLAGS_PER_TEAM * 100), captured: [...ids] };
+  const next = (FLAG_HASHES[team] || []).find(f => !ids.has(f.id))?.id || null;
+  return { team, flags: ids.size, total: FLAGS_PER_TEAM, percent: Math.round(ids.size / FLAGS_PER_TEAM * 100), captured: [...ids], next };
 }
 
 app.get('/api/health', (_req, res) => res.json({ ok: true, service: 'dicib-ctf' }));
