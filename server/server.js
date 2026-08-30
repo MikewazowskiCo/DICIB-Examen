@@ -4,14 +4,13 @@ import rateLimit from 'express-rate-limit';
 import { Pool } from 'pg';
 import crypto from 'node:crypto';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath } from 'url';
 import { FLAG_HASHES } from './flags.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = Number(process.env.PORT || 8610);
 const DATABASE_URL = process.env.DATABASE_URL;
-
 if (!DATABASE_URL) throw new Error('DATABASE_URL is not configured');
 
 const pool = new Pool({
@@ -48,7 +47,7 @@ async function initDatabase() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `);
-  await pool.query('CREATE INDEX IF NOT EXISTS idx_events_team_type ON events(team, type)');
+  await pool.query('CREATE UNIQUE INDEX IF NOT EXISTS idx_events_unique_flag ON events(team, type, flag_id)');
 }
 
 function newSession(user, role) {
@@ -132,8 +131,7 @@ app.post('/api/flags/submit', auth, async (req, res) => {
   if (answerHash !== flags[index].hash) return res.status(400).json({ accepted: false, error: 'FLAG incorrecta' });
 
   await pool.query(
-    `INSERT INTO events(team, type, flag_id) VALUES($1,$2,$3)
-     ON CONFLICT DO NOTHING`,
+    'INSERT INTO events(team, type, flag_id) VALUES($1,$2,$3) ON CONFLICT DO NOTHING',
     [team, 'FLAG_ACCEPTED', flagId]
   );
 
