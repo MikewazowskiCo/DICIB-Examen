@@ -30,31 +30,20 @@ TEAMS = {
     "DELTA": (14, "02 00 00 00 00 14"),
 }
 
-# Minutos aproximados en los que aparecen los 25 eventos útiles.
 EVENT_MINUTES = [4, 8, 12, 16, 21, 25, 30, 35, 39, 44, 49, 54, 59,
                  64, 69, 74, 79, 84, 89, 94, 99, 104, 109, 114, 118]
 
 FALSE_FLAGS = [
-    "FLAG{ACCESO_AUTORIZADO_LAB}",
-    "FLAG{EVENTO_NO_VALIDADO}",
-    "FLAG{PISTA_TEMPORAL_FALSA}",
-    "FLAG{REVISA_EL_HOST}",
-    "FLAG{CONEXION_DE_PRUEBA}",
-    "FLAG{EVIDENCIA_DESCARTADA}",
-    "FLAG{RUIDO_DEL_LABORATORIO}",
-    "FLAG{NO_ES_LA_RESPUESTA}",
-    "FLAG{PAQUETE_SEÑUELO}",
-    "FLAG{IDENTIDAD_NO_CONFIRMADA}",
-    "FLAG{EVENTO_SECUNDARIO}",
-    "FLAG{DATO_DE_TELEMETRIA}",
-    "FLAG{BUSQUEDA_INCOMPLETA}",
-    "FLAG{PISTA_DE_RED_FALSA}",
-    "FLAG{CORRELACION_INCORRECTA}",
-    "FLAG{MENSAJE_DE_PRUEBA}",
-    "FLAG{PERFIL_NO_VALIDADO}",
-    "FLAG{RUTA_DESCARTADA}",
-    "FLAG{REFERENCIA_FICTICIA}",
-    "FLAG{ULTIMO_EVENTO_FALSO}",
+    "FLAG{ACCESO_AUTORIZADO_LAB}", "FLAG{EVENTO_NO_VALIDADO}",
+    "FLAG{PISTA_TEMPORAL_FALSA}", "FLAG{REVISA_EL_HOST}",
+    "FLAG{CONEXION_DE_PRUEBA}", "FLAG{EVIDENCIA_DESCARTADA}",
+    "FLAG{RUIDO_DEL_LABORATORIO}", "FLAG{NO_ES_LA_RESPUESTA}",
+    "FLAG{PAQUETE_SEÑUELO}", "FLAG{IDENTIDAD_NO_CONFIRMADA}",
+    "FLAG{EVENTO_SECUNDARIO}", "FLAG{DATO_DE_TELEMETRIA}",
+    "FLAG{BUSQUEDA_INCOMPLETA}", "FLAG{PISTA_DE_RED_FALSA}",
+    "FLAG{CORRELACION_INCORRECTA}", "FLAG{MENSAJE_DE_PRUEBA}",
+    "FLAG{PERFIL_NO_VALIDADO}", "FLAG{RUTA_DESCARTADA}",
+    "FLAG{REFERENCIA_FICTICIA}", "FLAG{ULTIMO_EVENTO_FALSO}",
 ]
 
 
@@ -67,7 +56,7 @@ def answer(team, n):
         f"FLAG{{{team}_SIGUE_LA_CADENA}}", "micorreoeswazowski@gmail.com", "JuniorTuPapa", f"FLAG{{{team}_REVISA_EL_CORREO}}",
         "Poyvi ha'e Colombia, ryvy Paraguái.", f"FLAG{{{team}_RECONSTRUYE_EL_MENSAJE}}", f"FLAG{{{team}_BUSCA_LA_IDENTIDAD}}",
         f"FLAG{{{team}_ENCUENTRA_EL_PERFIL}}", f"FLAG{{{team}_SIGUE_LA_PISTA_FINAL}}", f"FLAG{{{team}_UBICA_EL_USUARIO}}",
-        f"FLAG{{{team}_BUSCA_INSTAGRAM}}", f"FLAG{{{team}_CONFIRMA_MIKEVARGAX}}", f"FLAG{{{team}_BUSCAR_INSTAGRAM_MIKEVARGAX}}"
+        f"FLAG{{{team}_BUSCA_INSTAGRAM}}", f"FLAG{{{team}_CONFIRMA_MIKEVARGAX}}", "FLAG{HACK_THE_WORLD}"
     ]
     return vals[n - 1]
 
@@ -97,15 +86,13 @@ CLUES = [
     "El usuario aparece en una cabecera de respuesta.",
     "Busca la referencia de Instagram.",
     "Confirma la cadena MIKEVARGAX.",
-    "Objetivo final: buscar Instagram @MIKEVARGAX."
+    "Objetivo final: busca en Instagram el perfil @mikevargax y encuentra la frase de su biografía: HACK THE WORLD."
 ]
 
 NOISE = [
-    "heartbeat nodo=LAB-01 estado=ok",
-    "telemetria cpu=41 memoria=62",
+    "heartbeat nodo=LAB-01 estado=ok", "telemetria cpu=41 memoria=62",
     "consulta dns=actualizaciones.dicib.test respuesta=10.10.10.81",
-    "healthcheck servicio=entrenamiento estado=200",
-    "registro=normal prioridad=baja",
+    "healthcheck servicio=entrenamiento estado=200", "registro=normal prioridad=baja",
     "sesion=simulada resultado=correcto",
 ]
 
@@ -208,9 +195,6 @@ def generate(team):
     frames = []
     base = 1788000000 + list(TEAMS).index(team) * 3600
 
-    # Tráfico constante: un paquete sintético aproximadamente cada 20 s.
-    # Los eventos útiles aparecen en minutos variables y los señuelos se
-    # intercalan para obligar a filtrar y correlacionar.
     event_by_minute = dict(zip(EVENT_MINUTES, range(1, 26)))
     total_seconds = 120 * 60
     for sec in range(0, total_seconds, 20):
@@ -221,7 +205,6 @@ def generate(team):
             frames.extend(pair(team, n, client_ip, client_mac))
         else:
             idx = sec // 20
-            # Cada minuto aproximadamente aparece un señuelo que parece una FLAG.
             if idx % 3 == 0:
                 frames.append(false_flag_packet(team, idx, client_ip, client_mac))
             else:
@@ -233,7 +216,6 @@ def generate(team):
     with p.open('wb') as f:
         f.write(struct.pack('<IHHIIII', 0xA1B2C3D4, 2, 4, 0, 0, 65535, 1))
         for i, frame in enumerate(frames):
-            # Distribuye los paquetes de forma determinista dentro de 120 min.
             ts = base + i * 20
             f.write(struct.pack('<IIII', ts, (i * 137) % 1000000,
                                 len(frame), len(frame)) + frame)
