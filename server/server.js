@@ -146,6 +146,30 @@ app.get('/api/standings', auth, adminOnly, async (_req, res) => {
   res.json({ standings: currentStandings, events });
 });
 
+// Admin-only reset controls. These delete progress events only; users and flag definitions remain intact.
+app.post('/api/admin/reset-all', auth, adminOnly, async (_req, res) => {
+  try {
+    const result = await pool.query("DELETE FROM events WHERE type = 'FLAG_ACCEPTED'");
+    const states = await Promise.all(TEAMS.map(teamState));
+    res.json({ ok: true, scope: 'all', deleted: result.rowCount, standings: states });
+  } catch (error) {
+    console.error('Reset all failed:', error);
+    res.status(500).json({ ok: false, error: 'No se pudo restablecer el reto completo' });
+  }
+});
+
+app.post('/api/admin/reset-team', auth, adminOnly, async (req, res) => {
+  const team = String(req.body?.team || '').trim().toUpperCase();
+  if (!TEAMS.includes(team)) return res.status(400).json({ ok: false, error: 'Equipo no válido' });
+  try {
+    const result = await pool.query("DELETE FROM events WHERE team = $1 AND type = 'FLAG_ACCEPTED'", [team]);
+    res.json({ ok: true, scope: 'team', team, deleted: result.rowCount, state: await teamState(team) });
+  } catch (error) {
+    console.error(`Reset ${team} failed:`, error);
+    res.status(500).json({ ok: false, error: `No se pudo restablecer ${team}` });
+  }
+});
+
 // Generates a valid PCAP directly from the server. This avoids serving a corrupted
 // or incorrectly encoded binary file from the static directory.
 function ipChecksum(buf) {
