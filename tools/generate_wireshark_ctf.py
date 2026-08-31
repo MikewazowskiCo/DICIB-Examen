@@ -8,10 +8,7 @@ Uso:
   python tools/generate_wireshark_ctf.py
 
 Salida:
-  pcap/ALFA.pcap, BRAVO.pcap, CHARLY.pcap, DELTA.pcap
-
-Filtro inicial para alumnos:
-  http.request.uri contains "event"
+  public/pcap/ALFA.pcap, BRAVO.pcap, CHARLY.pcap, DELTA.pcap
 
 Diseño: tráfico constante durante 120 minutos, con 25 eventos útiles
 progresivamente distribuidos y numerosos señuelos en español.
@@ -20,7 +17,7 @@ from __future__ import annotations
 import base64, struct
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / "pcap"
+OUT = Path(__file__).resolve().parent.parent / "public" / "pcap"
 SERVER_IP = "10.10.10.80"
 SERVER_MAC = bytes.fromhex("02 00 00 00 00 80")
 TEAMS = {
@@ -56,7 +53,7 @@ def answer(team, n):
         f"FLAG{{{team}_SIGUE_LA_CADENA}}", "micorreoeswazowski@gmail.com", "JuniorTuPapa", f"FLAG{{{team}_REVISA_EL_CORREO}}",
         "Poyvi ha'e Colombia, ryvy Paraguái.", f"FLAG{{{team}_RECONSTRUYE_EL_MENSAJE}}", f"FLAG{{{team}_BUSCA_LA_IDENTIDAD}}",
         f"FLAG{{{team}_ENCUENTRA_EL_PERFIL}}", f"FLAG{{{team}_SIGUE_LA_PISTA_FINAL}}", f"FLAG{{{team}_UBICA_EL_USUARIO}}",
-        f"FLAG{{{team}_BUSCA_INSTAGRAM}}", f"FLAG{{{team}_CONFIRMA_MIKEVARGAX}}", "FLAG{HACK_THE_WORLD}"
+        f"FLAG{{{team}_BUSCA_INSTAGRAM}}", f"FLAG{{{team}_CONFIRMA_MIKEVARGAX}}", "HACK THE WORLD"
     ]
     return vals[n - 1]
 
@@ -86,7 +83,7 @@ CLUES = [
     "El usuario aparece en una cabecera de respuesta.",
     "Busca la referencia de Instagram.",
     "Confirma la cadena MIKEVARGAX.",
-    "Objetivo final: busca en Instagram el perfil @mikevargax y encuentra la frase de su biografía: HACK THE WORLD."
+    "Objetivo final: busca en Instagram el perfil @mikevargax y encuentra la frase de su biografia: HACK THE WORLD."
 ]
 
 NOISE = [
