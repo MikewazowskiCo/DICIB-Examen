@@ -5,6 +5,7 @@ const make = (team, values) => values.map((answer, i) => ({ id: `${team}-${Strin
 
 // Cada equipo sigue la misma ruta de dificultad. Las respuestas son distintas por equipo
 // para evitar que compartir una captura resuelva automáticamente el reto de otro equipo.
+// Las excepciones intencionales son el correo, la clave, la frase en guaraní y la pista final.
 const build = (team) => [
   `FLAG{INICIO_${team}}`,
   `FLAG{${team}_BUSCA_EL_EVENTO}`,
@@ -30,7 +31,7 @@ const build = (team) => [
   `FLAG{${team}_UBICA_EL_USUARIO}`,
   `FLAG{${team}_BUSCA_INSTAGRAM}`,
   `FLAG{${team}_CONFIRMA_MIKEVARGAX}`,
-  `FLAG{${team}_BUSCAR_INSTAGRAM_MIKEVARGAX}`
+  'HACK THE WORLD'
 ];
 
 export const FLAG_HASHES = Object.fromEntries(
