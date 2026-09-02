@@ -8,7 +8,7 @@ Uso:
   python tools/generate_wireshark_ctf.py
 
 Salida:
-  public/pcap/ALFA.pcap, BRAVO.pcap, CHARLY.pcap, DELTA.pcap
+  public/pcap/ALFA.pcap, BRAVO.pcap, CHARLIE.pcap, DELTA.pcap
 
 Diseño: tráfico constante durante 120 minutos, con 25 eventos útiles
 progresivamente distribuidos y numerosos señuelos en español.
@@ -23,7 +23,7 @@ SERVER_MAC = bytes.fromhex("02 00 00 00 00 80")
 TEAMS = {
     "ALFA": (11, "02 00 00 00 00 11"),
     "BRAVO": (12, "02 00 00 00 00 12"),
-    "CHARLY": (13, "02 00 00 00 00 13"),
+    "CHARLIE": (13, "02 00 00 00 00 13"),
     "DELTA": (14, "02 00 00 00 00 14"),
 }
 

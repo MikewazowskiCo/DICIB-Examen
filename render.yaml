@@ -19,7 +19,7 @@ services:
         sync: false
       - key: BRAVO_PASSWORD
         sync: false
-      - key: CHARLY_PASSWORD
+      - key: CHARLIE_PASSWORD
         sync: false
       - key: DELTA_PASSWORD
         sync: false

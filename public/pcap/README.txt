@@ -4,7 +4,7 @@ Archivo: DICIB-CAPTURE.pcap.gz
 
 - Captura sintetica y aislada para el laboratorio.
 - Duracion temporal: 120 minutos.
-- Incluye trafico de ALFA, BRAVO, CHARLY y DELTA en paralelo.
+- Incluye trafico de ALFA, BRAVO, CHARLIE y DELTA en paralelo.
 - El trafico normal es constante y los eventos utiles aparecen progresivamente.
 - Tambien hay paquetes señuelo/flags falsas en espanol.
 - Abrir el archivo descomprimido DICIB-CAPTURE.pcap con Wireshark.

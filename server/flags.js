@@ -35,5 +35,5 @@ const build = (team) => [
 ];
 
 export const FLAG_HASHES = Object.fromEntries(
-  ['ALFA', 'BRAVO', 'CHARLY', 'DELTA'].map(team => [team, make(team, build(team))])
+  ['ALFA', 'BRAVO', 'CHARLIE', 'DELTA'].map(team => [team, make(team, build(team))])
 );

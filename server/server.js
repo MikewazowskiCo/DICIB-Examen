@@ -25,12 +25,12 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(express.json({ limit: '16kb' }));
 app.use(rateLimit({ windowMs: 60_000, limit: 120, standardHeaders: true, legacyHeaders: false }));
 
-const TEAMS = ['ALFA', 'BRAVO', 'CHARLY', 'DELTA'];
+const TEAMS = ['ALFA', 'BRAVO', 'CHARLIE', 'DELTA'];
 const FLAGS_PER_TEAM = 25;
 const PASSWORDS = {
   ALFA: process.env.ALFA_PASSWORD,
   BRAVO: process.env.BRAVO_PASSWORD,
-  CHARLY: process.env.CHARLY_PASSWORD,
+  CHARLIE: process.env.CHARLIE_PASSWORD,
   DELTA: process.env.DELTA_PASSWORD
 };
 const ADMIN_USER = process.env.ADMIN_USER || 'WAZOWSKI';
