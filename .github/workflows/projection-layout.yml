@@ -20,7 +20,7 @@ jobs:
           p = Path('public/index.html')
           text = p.read_text(encoding='utf-8')
 
-          css = r'''
+          css = '''
           /* C2 PROJECTION PRIORITY */
           #admin>.c2-header{padding:20px 24px}
           #admin>.c2-header h1{font-size:clamp(28px,3.5vw,48px);margin:10px 0 4px}
@@ -36,8 +36,6 @@ jobs:
           .c2-priority .rank .bar{height:15px}
           .c2-priority .rank small{font-size:12px}
           .c2-clock .clock-value{font-size:clamp(34px,4vw,60px)}
-          .c2-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-          .c2-status-grid>.card{margin:0}
           .projection-grid{margin-top:16px}
           .projection-grid .signal-panel{min-height:135px}
           #feed{max-height:190px}
@@ -45,20 +43,24 @@ jobs:
           .c2-header .metric{padding:12px 14px}
           .c2-header .big{font-size:32px}
           @media(max-width:1000px){.c2-priority{grid-template-columns:1fr}.c2-header .grid{grid-template-columns:repeat(2,1fr)}}
-          @media(max-width:650px){.c2-status-grid,.c2-header .grid{grid-template-columns:1fr}}
+          @media(max-width:650px){.c2-header .grid{grid-template-columns:1fr}}
           '''
           marker = '@media(max-width:850px)'
           if '/* C2 PROJECTION PRIORITY */' not in text:
               text = text.replace(marker, css + '\n' + marker, 1)
 
-          text = text.replace('<div class="card"><div class="corner"><div><span class="tag">WAZOWSKI // COMMAND CENTER</span>', '<div class="card c2-header"><div class="corner"><div><span class="tag">WAZOWSKI // C2 COMMAND CENTER</span>', 1)
+          header_old = '<div class="card"><div class="corner"><div><span class="tag">WAZOWSKI // COMMAND CENTER</span>'
+          header_new = '<div class="card c2-header"><div class="corner"><div><span class="tag">WAZOWSKI // C2 COMMAND CENTER</span>'
+          text = text.replace(header_old, header_new, 1)
 
           start = text.find('<div class="card"><div class="corner"><h2>◉ CTF COMMAND CLOCK</h2>')
           rank_start = text.find('<div class="card rank">', start)
           if start == -1 or rank_start == -1:
               raise SystemExit('Could not locate command clock / leaderboard blocks')
 
-          rank_end_marker = '</div>\n<div class="card"><div class="corner"><h2>// LIVE EVENT STREAM'</n          rank_end = text.find(rank_end_marker, rank_start)
+          rank_end_marker = '''</div>
+<div class="card"><div class="corner"><h2>// LIVE EVENT STREAM'''
+          rank_end = text.find(rank_end_marker, rank_start)
           if rank_end == -1:
               raise SystemExit('Could not locate leaderboard end')
           rank_end += len('</div>')
