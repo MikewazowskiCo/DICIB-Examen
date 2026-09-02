@@ -18,7 +18,26 @@ h2{color:var(--green);letter-spacing:2px}.muted{color:var(--muted)}input,button{
 .c2-title{display:flex;align-items:center;gap:12px;color:var(--cyan);letter-spacing:4px;font-size:clamp(28px,3vw,48px);margin:8px 0 0;text-shadow:0 0 22px rgba(0,229,255,.4)}.c2-sub{font-size:11px;letter-spacing:2px;color:var(--muted);margin-top:7px}.c2-live{display:flex;align-items:center;gap:8px;color:var(--green);letter-spacing:2px}.c2-live:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 16px var(--green);animation:pulse .8s infinite}.c2-battle .grid{grid-template-columns:1fr 1fr;margin-top:18px}.c2-battle .metric{min-height:150px;position:relative}.c2-battle .metric:after{content:"// LIVE";position:absolute;right:12px;top:12px;font-size:9px;color:#286275;letter-spacing:2px}.team-scan{height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);margin-top:10px;animation:scanline 2.2s linear infinite}@keyframes scanline{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 .command-clock{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px}.clock-box{position:relative;padding:18px;border:1px solid #0b5870;background:linear-gradient(135deg,rgba(0,229,255,.045),rgba(0,0,0,.24));overflow:hidden}.clock-box:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,229,255,.07),transparent);transform:translateX(-100%);animation:signal 3.2s linear infinite;pointer-events:none}@keyframes signal{to{transform:translateX(100%)}}.clock-label{font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:8px}.clock-value{font-size:clamp(30px,4vw,58px);font-weight:900;letter-spacing:4px;color:var(--cyan);text-shadow:0 0 22px rgba(0,229,255,.55)}.countdown{color:var(--green);text-shadow:0 0 22px rgba(85,255,154,.45)}.countdown.warning{color:var(--amber);text-shadow:0 0 22px rgba(255,209,102,.45)}.countdown.finished{color:var(--red);text-shadow:0 0 22px rgba(255,65,108,.45)}.mission-state{display:flex;align-items:center;gap:10px;margin-top:10px;color:var(--muted)}.state-dot{width:9px;height:9px;border-radius:50%;background:var(--amber);box-shadow:0 0 12px var(--amber);animation:pulse 1s infinite}.state-dot.active{background:var(--green);box-shadow:0 0 15px var(--green)}.state-dot.finished{background:var(--red);box-shadow:0 0 15px var(--red)}.start-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}.start-row input{width:105px;margin:0}.start-btn{font-size:15px;padding:13px 16px}.stop-btn{color:var(--amber);border-color:var(--amber)}
 .projection-grid{display:grid;grid-template-columns:1fr;gap:12px}.signal-panel{min-height:125px}.signal-line{font-size:11px;line-height:1.8;color:#76aab6;white-space:nowrap;overflow:hidden}.signal-line b{color:var(--cyan)}.signal-line .green{color:var(--green)}.signal-line .amber{color:var(--amber)}.live-pulse{display:inline-block;width:6px;height:6px;background:var(--green);box-shadow:0 0 10px var(--green);margin-right:7px;animation:pulse .7s infinite}.telemetry{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:12px}.telemetry span{display:block;border:1px solid #0a3948;padding:7px;text-align:center;color:#54818d;font-size:9px;letter-spacing:1px;background:rgba(0,0,0,.22)}.telemetry b{display:block;color:var(--cyan);font-size:12px;margin-top:2px}.c2-leader .card-headline,.c2-feed .card-headline{margin-bottom:4px}.c2-feed .feed{max-height:280px}.admin-bottom{border-color:#35101a}.admin-bottom:before{background:var(--red);box-shadow:0 0 18px var(--red)}
-@media(max-width:1000px){.c2-shell{grid-template-columns:1fr;grid-template-areas:"battle" "clock" "ops" "leader" "feed" "admin"}.c2-battle .grid{grid-template-columns:1fr 1fr}}
+/* C2 PROJECTION PRIORITY V2 */
+.c2-shell{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(420px,.85fr);grid-template-areas:"battle clock" "leader leader" "ops ops" "feed feed" "admin admin";gap:16px}
+.c2-battle{grid-area:battle;margin:0}
+.c2-clock{grid-area:clock;margin:0}
+.c2-leader{grid-area:leader;margin:0;min-height:320px}
+.c2-ops{grid-area:ops;margin:0}
+.c2-feed{grid-area:feed;margin:0}
+.c2-admin{grid-area:admin;margin:0}
+.c2-leader h2{font-size:22px;letter-spacing:3px}
+.c2-leader table{font-size:17px}
+.c2-leader th{font-size:12px;padding:12px 10px}
+.c2-leader td{padding:18px 10px;height:62px}
+.c2-leader tr:first-child td{font-size:18px}
+.c2-leader tr:first-child td:first-child{font-size:30px}
+.c2-leader tr:first-child td b{font-size:20px}
+.c2-leader .bar{height:15px}
+.c2-leader small{font-size:12px}
+.c2-battle .c2-title{font-size:clamp(28px,3vw,46px)}
+@media(max-width:1000px){.c2-shell{grid-template-columns:1fr;grid-template-areas:"battle" "clock" "leader" "ops" "feed" "admin"}}
+{.c2-shell{grid-template-columns:1fr;grid-template-areas:"battle" "clock" "ops" "leader" "feed" "admin"}.c2-battle .grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.top{align-items:flex-start;flex-direction:column}.hero{padding:45px 10px}.rank{overflow:auto}.rank table{min-width:620px}.admin-actions,.c2-battle .grid{grid-template-columns:1fr}.team-reset{grid-template-columns:1fr}.telemetry{grid-template-columns:1fr 1fr}.wrap{width:94vw}}
 </style></head>
 <body><main class="wrap"><header class="top"><div class="brand">// DICIB // CYBER OPERATIONS</div><div class="status">SYSTEM ONLINE</div></header>
