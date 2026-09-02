@@ -1,0 +1,44 @@
+name: move-pcap-to-users
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  move:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Move PCAP download into team section
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('public/index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<!-- PCAP DOWNLOAD BUTTON -->'
+          start = s.find(marker)
+          if start == -1:
+              raise SystemExit('PCAP marker not found')
+          end = s.find('</div>', start)
+          if end == -1:
+              raise SystemExit('PCAP block end not found')
+          end += len('</div>')
+          block = s[start:end]
+          s = s[:start] + s[end:]
+          anchor = '<section id="team" class="hidden">'
+          pos = s.find(anchor)
+          if pos == -1:
+              raise SystemExit('team section not found')
+          insert_at = pos + len(anchor)
+          s = s[:insert_at] + '\n' + block + s[insert_at:]
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit change and remove workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/index.html
+          git commit -m 'Show PCAP download only to teams' || true
+          git rm .github/workflows/move-pcap-to-users.yml
+          git commit -m 'Remove temporary workflow' || true
+          git push
