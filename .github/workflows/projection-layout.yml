@@ -13,65 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Reorganize projection dashboard
-        shell: python
+        shell: bash
         run: |
-          from pathlib import Path
-          p = Path('public/index.html')
-          text = p.read_text(encoding='utf-8')
-
-          css = '''
-          /* C2 PROJECTION PRIORITY */
-          #admin>.c2-header{padding:20px 24px}
-          #admin>.c2-header h1{font-size:clamp(28px,3.5vw,48px);margin:10px 0 4px}
-          .c2-priority{display:grid;grid-template-columns:minmax(420px,1fr) minmax(480px,1.35fr);gap:16px;align-items:stretch}
-          .c2-priority>.card{margin:0}
-          .c2-priority .rank{min-height:100%}
-          .c2-priority .rank h2{font-size:20px;letter-spacing:3px}
-          .c2-priority .rank table{font-size:16px}
-          .c2-priority .rank th{font-size:12px;padding:12px 10px}
-          .c2-priority .rank td{padding:18px 10px;border-top:1px solid #0b3340}
-          .c2-priority .rank tr:first-child td:first-child{font-size:28px}
-          .c2-priority .rank tr:first-child td b{font-size:19px}
-          .c2-priority .rank .bar{height:15px}
-          .c2-priority .rank small{font-size:12px}
-          .c2-clock .clock-value{font-size:clamp(34px,4vw,60px)}
-          .projection-grid{margin-top:16px}
-          .projection-grid .signal-panel{min-height:135px}
-          #feed{max-height:190px}
-          .c2-header .grid{grid-template-columns:repeat(4,1fr)}
-          .c2-header .metric{padding:12px 14px}
-          .c2-header .big{font-size:32px}
-          @media(max-width:1000px){.c2-priority{grid-template-columns:1fr}.c2-header .grid{grid-template-columns:repeat(2,1fr)}}
-          @media(max-width:650px){.c2-header .grid{grid-template-columns:1fr}}
-          '''
-          marker = '@media(max-width:850px)'
-          if '/* C2 PROJECTION PRIORITY */' not in text:
-              text = text.replace(marker, css + '\n' + marker, 1)
-
-          header_old = '<div class="card"><div class="corner"><div><span class="tag">WAZOWSKI // COMMAND CENTER</span>'
-          header_new = '<div class="card c2-header"><div class="corner"><div><span class="tag">WAZOWSKI // C2 COMMAND CENTER</span>'
-          text = text.replace(header_old, header_new, 1)
-
-          start = text.find('<div class="card"><div class="corner"><h2>◉ CTF COMMAND CLOCK</h2>')
-          rank_start = text.find('<div class="card rank">', start)
-          if start == -1 or rank_start == -1:
-              raise SystemExit('Could not locate command clock / leaderboard blocks')
-
-          rank_end_marker = '''</div>
-<div class="card"><div class="corner"><h2>// LIVE EVENT STREAM'''
-          rank_end = text.find(rank_end_marker, rank_start)
-          if rank_end == -1:
-              raise SystemExit('Could not locate leaderboard end')
-          rank_end += len('</div>')
-
-          priority = text[start:rank_end]
-          priority = priority.replace('<div class="card"><div class="corner"><h2>◉ CTF COMMAND CLOCK</h2>', '<div class="card c2-clock"><div class="corner"><h2>◉ CTF COMMAND CLOCK</h2>', 1)
-          priority = priority.replace('<div class="card rank">', '<div class="card rank c2-leaderboard">', 1)
-          priority = priority.replace('<h2>◈ LIVE LEADERBOARD</h2>', '<h2>◈ LIVE LEADERBOARD // C2 PRIORITY</h2>', 1)
-          priority = '<div class="c2-priority">\n' + priority + '\n</div>'
-
-          text = text[:start] + priority + text[rank_end:]
-          p.write_text(text, encoding='utf-8')
+          echo 'ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCnAgPSBQYXRoKCJwdWJsaWMvaW5kZXguaHRtbCIpCnRleHQgPSBwLnJlYWRfdGV4dChlbmNvZGluZz0idXRmLTgiKQpjc3MgPSAiIiIvKiBDMiBQUk9KRUNUSU9OIFBSSU9SSVRZICovCiNhZG1pbj4uYzItaGVhZGVye3BhZGRpbmc6MjBweCAyNHB4fQojYWRtaW4+LmMyLWhlYWRlciBoMXtmb250LXNpemU6Y2xhbXAoMjhweCwzLjV2dyw0OHB4KTttYXJnaW46MTBweCAwIDRweH0KLmMyLXByaW9yaXR5e2Rpc3BsYXk6Z3JpZDtncmlkLXRlbXBsYXRlLWNvbHVtbnM6bWlubWF4KDQyMHB4LDFmcikgbWlubWF4KDQ4MHB4LDEuMzVmcik7Z2FwOjE2cHg7YWxpZ24taXRlbXM6c3RyZXRjaH0KLmMyLXByaW9yaXR5Pi5jYXJke21hcmdpbjowfQouYzItcHJpb3JpdHkgLnJhbmt7bWluLWhlaWdodDoxMDAlfQouYzItcHJpb3JpdHkgLnJhbmsgaDJ7Zm9udC1zaXplOjIwcHg7bGV0dGVyLXNwYWNpbmc6M3B4fQouYzItcHJpb3JpdHkgLnJhbmsgdGFibGV7Zm9udC1zaXplOjE2cHh9Ci5jMi1wcmlvcml0eSAucmFuayB0aHtmb250LXNpemU6MTJweDtwYWRkaW5nOjEycHggMTBweH0KLmMyLXByaW9yaXR5IC5yYW5rIHRke3BhZGRpbmc6MThweCAxMHB4O2JvcmRlci10b3A6MXB4IHNvbGlkICMwYjMzNDB9Ci5jMi1wcmlvcml0eSAucmFuayB0cjpmaXJzdC1jaGlsZCB0ZDpmaXJzdC1jaGlsZHtmb250LXNpemU6MjhweH0KLmMyLXByaW9yaXR5IC5yYW5rIHRyOmZpcnN0LWNoaWxkIHRkIGJ7Zm9udC1zaXplOjE5cHh9Ci5jMi1wcmlvcml0eSAucmFuayAuYmFye2hlaWdodDoxNXB4fQouYzItcHJpb3JpdHkgLnJhbmsgc21hbGx7Zm9udC1zaXplOjEycHh9Ci5jMi1jbG9jayAuY2xvY2stdmFsdWV7Zm9udC1zaXplOmNsYW1wKDM0cHgsNHZ3LDYwcHgpfQoucHJvamVjdGlvbi1ncmlke21hcmdpbi10b3A6MTZweH0KLnByb2plY3Rpb24tZ3JpZCAuc2lnbmFsLXBhbmVse21pbi1oZWlnaHQ6MTM1cHh9CiNmZWVke21heC1oZWlnaHQ6MTkwcHh9Ci5jMi1oZWFkZXIgLmdyaWR7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOnJlcGVhdCg0LDFmcil9Ci5jMi1oZWFkZXIgLm1ldHJpY3twYWRkaW5nOjEycHggMTRweH0KLmMyLWhlYWRlciAuYmlne2ZvbnQtc2l6ZTozMnB4fQpAbWVkaWEobWF4LXdpZHRoOjEwMDBweCl7LmMyLXByaW9yaXR5e2dyaWQtdGVtcGxhdGUtY29sdW1uczoxZnJ9LmMyLWhlYWRlciAuZ3JpZHtncmlkLXRlbXBsYXRlLWNvbHVtbnM6cmVwZWF0KDIsMWZyKX19CkBtZWRpYShtYXgtd2lkdGg6NjUwcHgpey5jMi1oZWFkZXIgLmdyaWR7Z3JpZC10ZW1wbGF0ZS1jb2x1bW5zOjFmcn19CiIiIgppZiAiLyogQzIgUFJPSkVDVElPTiBQUklPUklUWSAqLyIgbm90IGluIHRleHQ6CiAgICB0ZXh0ID0gdGV4dC5yZXBsYWNlKCJAbWVkaWEobWF4LXdpZHRoOjg1MHB4KSIsIGNzcyArICJcbkBtZWRpYShtYXgtd2lkdGg6ODUwcHgpIiwgMSkKCnRleHQgPSB0ZXh0LnJlcGxhY2UoCiAgICAnPGRpdiBjbGFzcz0iY2FyZCI+PGRpdiBjbGFzcz0iY29ybmVyIj48ZGl2PjxzcGFuIGNsYXNzPSJ0YWciPldBWk9XU0tJIC8vIENPTU1BTkQgQ0VOVEVSPC9zcGFuPicsCiAgICAnPGRpdiBjbGFzcz0iY2FyZCBjMi1oZWFkZXIiPjxkaXYgY2xhc3M9ImNvcm5lciI+PGRpdj48c3BhbiBjbGFzcz0idGFnIj5XQVpPV1NLSSAvLyBDMiBDT01NQU5EIENFTlRFUjwvc3Bhbj4nLAogICAgMQopCgpzdGFydCA9IHRleHQuZmluZCgnPGRpdiBjbGFzcz0iY2FyZCI+PGRpdiBjbGFzcz0iY29ybmVyIj48aDI+4peJIENURiBDT01NQU5EIENMT0NLPC9oMj4nKQpyYW5rX3N0YXJ0ID0gdGV4dC5maW5kKCc8ZGl2IGNsYXNzPSJjYXJkIHJhbmsiPicsIHN0YXJ0KQppZiBzdGFydCA9PSAtMSBvciByYW5rX3N0YXJ0ID09IC0xOgogICAgcmFpc2UgU3lzdGVtRXhpdCgiQ291bGQgbm90IGxvY2F0ZSBjb21tYW5kIGNsb2NrIC8gbGVhZGVyYm9hcmQgYmxvY2tzIikKCnJhbmtfZW5kX21hcmtlciA9ICc8L2Rpdj5cbjxkaXYgY2xhc3M9ImNhcmQiPjxkaXYgY2xhc3M9ImNvcm5lciI+PGgyPi8vIExJVkUgRVZFTlQgU1RSRUFNJwpyYW5rX2VuZCA9IHRleHQuZmluZChyYW5rX2VuZF9tYXJrZXIsIHJhbmtfc3RhcnQpCmlmIHJhbmtfZW5kID09IC0xOgogICAgcmFpc2UgU3lzdGVtRXhpdCgiQ291bGQgbm90IGxvY2F0ZSBsZWFkZXJib2FyZCBlbmQiKQpyYW5rX2VuZCArPSBsZW4oJzwvZGl2PicpCgpwcmlvcml0eSA9IHRleHRbc3RhcnQ6cmFua19lbmRdCnByaW9yaXR5ID0gcHJpb3JpdHkucmVwbGFjZSgKICAgICc8ZGl2IGNsYXNzPSJjYXJkIj48ZGl2IGNsYXNzPSJjb3JuZXIiPjxoMj7il4kgQ1RGIENPTU1BTkQgQ0xPQ0s8L2gyPicsCiAgICAnPGRpdiBjbGFzcz0iY2FyZCBjMi1jbG9jayI+PGRpdiBjbGFzcz0iY29ybmVyIj48aDI+4peJIENURiBDT01NQU5EIENMT0NLPC9oMj4nLAogICAgMQopCnByaW9yaXR5ID0gcHJpb3JpdHkucmVwbGFjZSgnPGRpdiBjbGFzcz0iY2FyZCByYW5rIj4nLCAnPGRpdiBjbGFzcz0iY2FyZCByYW5rIGMyLWxlYWRlcmJvYXJkIj4nLCAxKQpwcmlvcml0eSA9IHByaW9yaXR5LnJlcGxhY2UoJzxoMj7il4ggTElWRSBMRUFERVJCT0FSRDwvaDI+JywgJzxoMj7il4ggTElWRSBMRUFERVJCT0FSRCAvLyBDMiBQUklPUklUWTwvaDI+JywgMSkKcHJpb3JpdHkgPSAnPGRpdiBjbGFzcz0iYzItcHJpb3JpdHkiPlxuJyArIHByaW9yaXR5ICsgJ1xuPC9kaXY+Jwp0ZXh0ID0gdGV4dFs6c3RhcnRdICsgcHJpb3JpdHkgKyB0ZXh0W3JhbmtfZW5kOl0KcC53cml0ZV90ZXh0KHRleHQsIGVuY29kaW5nPSJ1dGYtOCIpCg==' | base64 -d | python
       - name: Commit and remove temporary workflow
         shell: bash
         run: |
