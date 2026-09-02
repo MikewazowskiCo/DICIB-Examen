@@ -1,0 +1,51 @@
+name: Fix CHARLY typo
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: ${{ !contains(github.event.head_commit.message, '[fix-charlie]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace CHARLY with CHARLIE in text artifacts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          files = [
+              Path('server/server.js'),
+              Path('server/flags.js'),
+              Path('server/.env.example'),
+              Path('render.yaml'),
+              Path('tools/generate_wireshark_ctf.py'),
+              Path('public/index.html'),
+              Path('public/pcap/README.txt'),
+          ]
+          changed = []
+          for p in files:
+              if p.exists():
+                  s = p.read_text(encoding='utf-8')
+                  if 'CHARLY' in s:
+                      p.write_text(s.replace('CHARLY', 'CHARLIE'), encoding='utf-8')
+                      changed.append(str(p))
+          print('Changed:', changed)
+          PY
+      - name: Commit corrected spelling
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add server/server.js server/flags.js server/.env.example render.yaml tools/generate_wireshark_ctf.py public/index.html public/pcap/README.txt
+          if git diff --cached --quiet; then
+            echo 'No CHARLY occurrences found.'
+          else
+            git commit -m 'Fix team name CHARLY to CHARLIE [fix-charlie]'
+            git push
+          fi
+      - name: Remove temporary workflow
+        if: success()
+        run: |
+          git rm .github/workflows/fix-charly.yml || true
+          git commit -m 'Remove temporary typo-fix workflow [fix-charlie]' || true
+          git push || true
