@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web Exposure Lab | DICIB</title>
+<style>
+:root{--bg:#05080d;--panel:#0b111a;--panel2:#101925;--line:#1d2b3d;--text:#e8f0f7;--muted:#8da1b5;--cyan:#38d9ff;--green:#55f59a;--yellow:#ffd166;--red:#ff5d73;--purple:#a78bfa}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 50% -10%,#122338 0,#05080d 45%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(56,217,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(56,217,255,.035) 1px,transparent 1px);background-size:42px 42px;pointer-events:none;animation:grid 18s linear infinite;z-index:-1}@keyframes grid{to{transform:translateY(42px)}}
+.header{position:sticky;top:0;z-index:20;background:rgba(5,8,13,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:14px 5vw}.brand{font-weight:900;letter-spacing:1px}.brand span{color:var(--cyan)}.status{font-size:12px;color:var(--green);border:1px solid #235a43;padding:6px 10px;border-radius:999px;background:#0b1b15}.container{width:min(1180px,92%);margin:auto}.hero{padding:62px 0 30px;text-align:center}.eyebrow{color:var(--cyan);font-size:12px;font-weight:800;letter-spacing:3px;text-transform:uppercase}.hero h1{font-size:clamp(34px,6vw,66px);line-height:1;margin:14px 0}.hero h1 span{color:var(--cyan);text-shadow:0 0 25px rgba(56,217,255,.3)}.hero p{max-width:760px;margin:18px auto;color:var(--muted);font-size:17px;line-height:1.7}
+.card{background:linear-gradient(180deg,rgba(16,25,37,.96),rgba(9,15,23,.96));border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.28)}.target-card{padding:22px;margin:25px 0}.target-row{display:flex;gap:10px}.target-row input{flex:1;min-width:0;background:#050a10;color:var(--text);border:1px solid #294058;border-radius:12px;padding:16px;font-size:16px;outline:none}.target-row input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(56,217,255,.08)}button,.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}.primary{background:var(--cyan);color:#031018}.primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(56,217,255,.2)}.secondary{background:#172536;color:var(--text);border:1px solid #294058}.secondary:hover{border-color:var(--cyan)}.hint{font-size:12px;color:var(--muted);margin-top:10px}.safe{color:var(--green)}
+.workflow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 35px}.step{padding:18px;border:1px solid var(--line);border-radius:15px;background:rgba(11,17,26,.75);position:relative}.step b{display:block;margin:7px 0}.step small{color:var(--muted);line-height:1.5}.num{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;border-radius:50%;background:#102a39;color:var(--cyan);font-weight:900}
+.layout{display:grid;grid-template-columns:330px 1fr;gap:18px;align-items:start}.side{padding:18px;position:sticky;top:82px}.side h3,.panel h2{margin-top:0}.check-list{display:grid;gap:8px}.check{display:flex;align-items:center;gap:9px;padding:10px;border-radius:10px;background:#0a1119;border:1px solid #172536;font-size:13px;color:#b9c8d6}.check input{accent-color:var(--cyan)}.panel{padding:22px}.panel-head{display:flex;justify-content:space-between;gap:15px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}.panel-head h2{margin:0}.target-badge{font-family:monospace;color:var(--cyan);background:#07131c;padding:8px 10px;border-radius:9px;border:1px solid #18394b;word-break:break-all}.empty{padding:35px;text-align:center;border:1px dashed #294058;border-radius:14px;color:var(--muted)}
+.results{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.result{border:1px solid var(--line);background:#080e15;border-radius:14px;padding:16px;min-height:130px}.result h4{margin:0 0 8px;color:#dce9f4}.result p{margin:0;color:var(--muted);line-height:1.55;font-size:13px}.tag{display:inline-block;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 7px;border-radius:6px;margin-bottom:10px;background:#142333;color:var(--cyan)}
+.report{margin:30px 0 60px;padding:22px}.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field{display:flex;flex-direction:column;gap:7px}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field textarea,.field select{width:100%;background:#050a10;color:var(--text);border:1px solid #294058;border-radius:10px;padding:12px;outline:none}.field textarea{min-height:115px;resize:vertical}.full{grid-column:1/-1}.severity{font-weight:900}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}.report-preview{margin-top:18px;display:none}.report-box{background:#050a10;border:1px solid #294058;border-radius:12px;padding:18px;white-space:pre-wrap;line-height:1.6;color:#cbd9e5;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+.notice{border-left:4px solid var(--yellow);background:#19160d;padding:14px 16px;border-radius:8px;color:#d9cfae;font-size:13px;line-height:1.55;margin:15px 0}.footer{text-align:center;border-top:1px solid var(--line);padding:28px;color:#72869a;font-size:12px}.footer strong{color:var(--cyan)}
+@media(max-width:850px){.workflow{grid-template-columns:1fr 1fr}.layout{grid-template-columns:1fr}.side{position:static}.results,.report-grid{grid-template-columns:1fr}.target-row{flex-direction:column}}
+</style>
+</head>
+<body>
+<header class="header"><div class="brand">◉ WEB<span>EXPOSURE</span> LAB</div><div class="status">● MODO CIBERDEFENSA</div></header>
+<main class="container">
+<section class="hero"><div class="eyebrow">DICIB · LABORATORIO PRÁCTICO</div><h1>Del hallazgo al <span>informe</span></h1><p>Encuentra un activo autorizado en Shodan, pásalo por Web Check, interpreta la evidencia y construye una evaluación defensiva. La herramienta Web Check ofrece más de 30 comprobaciones sobre una web o IP, incluyendo DNS, headers, SSL/TLS, puertos, tecnologías, amenazas y más.</p></section>
+<section class="card target-card">
+<div class="target-row"><input id="target" placeholder="Escribe una IP o dominio · ej. 203.0.113.10 / example.com"><button class="primary" onclick="analyze()">🔎 ANALIZAR EN WEB CHECK</button></div>
+<div class="hint">Al pulsar, se abrirá el análisis en <b>web-check.as93.net</b>. Usa únicamente activos propios, del laboratorio o expresamente autorizados.</div>
+<div class="actions"><button class="secondary" onclick="demoTarget('203.0.113.10')">Cargar IP de laboratorio</button><button class="secondary" onclick="demoTarget('example.com')">Cargar dominio de práctica</button></div>
+</section>
+<div class="workflow">
+<div class="step"><span class="num">1</span><b>DESCUBRIR</b><small>Obtén el hallazgo desde Shodan.</small></div>
+<div class="step"><span class="num">2</span><b>VERIFICAR</b><small>Analiza el activo con Web Check.</small></div>
+<div class="step"><span class="num">3</span><b>INTERPRETAR</b><small>Clasifica evidencia y exposición.</small></div>
+<div class="step"><span class="num">4</span><b>REPORTAR</b><small>Genera una conclusión defensiva.</small></div>
+</div>
+<div class="layout">
+<aside class="card side"><h3>🧭 Checklist del analista</h3><p style="color:var(--muted);font-size:13px">Marca lo que hayas verificado en Web Check.</p><div class="check-list" id="checks"></div><div class="notice"><b>Regla:</b> observar, documentar y recomendar. No intentes autenticación, explotación ni acceso a activos de terceros.</div></aside>
+<section class="card panel"><div class="panel-head"><div><h2>📊 Panel de hallazgo</h2><div style="color:var(--muted);font-size:13px">Registro manual de la evidencia observada</div></div><div class="target-badge" id="badge">SIN OBJETIVO</div></div><div class="empty" id="empty">Selecciona un objetivo y abre Web Check. Después vuelve aquí para registrar lo que encontraste.</div><div class="results" id="results"></div></section>
+</div>
+<section class="card report"><h2>📝 Informe de ciberdefensa</h2><p style="color:var(--muted);margin-top:-5px">Convierte tus observaciones en una conclusión profesional.</p><div class="report-grid">
+<div class="field"><label>ACTIVO ANALIZADO</label><input id="rTarget" placeholder="IP / dominio"></div>
+<div class="field"><label>NIVEL DE RIESGO</label><select id="risk"><option>Bajo</option><option>Medio</option><option>Alto</option><option>Crítico</option></select></div>
+<div class="field"><label>HALLAZGO PRINCIPAL</label><input id="finding" placeholder="Ej. servicio HTTPS expuesto con tecnología identificable"></div>
+<div class="field"><label>EVIDENCIA</label><input id="evidence" placeholder="Ej. Web Check → Headers / SSL / Ports"></div>
+<div class="field full"><label>RECOMENDACIÓN</label><textarea id="recommendation" placeholder="Escribe qué debería revisar o corregir el administrador..."></textarea></div>
+</div><div class="actions"><button class="primary" onclick="generateReport()">GENERAR INFORME</button><button class="secondary" onclick="copyReport()">COPIAR INFORME</button><button class="secondary" onclick="resetLab()">REINICIAR</button></div><div class="report-preview" id="preview"><div class="report-box" id="reportBox"></div></div></section>
+</main>
+<footer class="footer"><strong>CREADO POR T2. Mike “Wazowski” Vargas DICIB PY 2026</strong><br><span>Laboratorio educativo · análisis defensivo · activos autorizados</span></footer>
+<script>
+const modules=[
+ ['IP / Ubicación','Identifica IP, ASN, proveedor y ubicación aproximada.'],
+ ['DNS','Revisa registros DNS, servidores y resolución del objetivo.'],
+ ['Puertos','Observa qué puertos/servicios reporta Web Check.'],
+ ['HTTP Headers','Busca información útil en las cabeceras HTTP.'],
+ ['SSL / TLS','Comprueba certificado, vigencia y versión TLS.'],
+ ['HSTS / HTTP Security','Verifica controles de seguridad del navegador.'],
+ ['Tecnologías','Identifica stack tecnológico cuando esté disponible.'],
+ ['Cookies','Revisa atributos de seguridad de las cookies.'],
+ ['Robots / Sitemap','Observa qué información publica el sitio para crawlers.'],
+ ['Redirecciones','Comprueba hacia dónde redirige el objetivo.'],
+ ['Screenshot','Compara la interfaz observada con el hallazgo original.'],
+ ['Amenazas','Revisa indicadores de amenaza disponibles.']
+];
+const checks=document.getElementById('checks');
+modules.forEach((m,i)=>{const id='c'+i;checks.innerHTML+=`<label class="check"><input type="checkbox" id="${id}" onchange="updateCards()"> ${m[0]}</label>`});
+function normalize(v){v=v.trim();if(!v)return '';v=v.replace(/^https?:\/\//i,'').replace(/\/$/,'');return v}
+function demoTarget(v){document.getElementById('target').value=v; document.getElementById('rTarget').value=v; document.getElementById('badge').textContent=v.toUpperCase();}
+function analyze(){const v=normalize(document.getElementById('target').value);if(!v){alert('Escribe una IP o dominio.');return}demoTarget(v);const url='https://web-check.as93.net/check/'+encodeURIComponent(v);window.open(url,'_blank','noopener');document.getElementById('empty').style.display='none';document.getElementById('results').innerHTML='<div class="result"><span class="tag">Objetivo cargado</span><h4>'+escapeHtml(v)+'</h4><p>Web Check fue abierto en una nueva pestaña. Registra abajo las evidencias que observes.</p></div>';document.querySelector('.panel').scrollIntoView({behavior:'smooth',block:'start'})}
+function updateCards(){const r=document.getElementById('results');const selected=[];modules.forEach((m,i)=>{if(document.getElementById('c'+i).checked)selected.push(m)});if(selected.length===0)return;r.innerHTML=selected.map(m=>`<div class="result"><span class="tag">VERIFICADO</span><h4>${escapeHtml(m[0])}</h4><p>${escapeHtml(m[1])}<br><br><span style="color:var(--green)">✓ Revisado por el alumno</span></p></div>`).join('')}
+function generateReport(){const t=document.getElementById('rTarget').value||normalize(document.getElementById('target').value)||'No especificado';const risk=document.getElementById('risk').value;const finding=document.getElementById('finding').value||'No registrado';const evidence=document.getElementById('evidence').value||'No registrada';const rec=document.getElementById('recommendation').value||'Realizar revisión técnica y restringir cualquier servicio que no deba estar expuesto.';const checked=[...document.querySelectorAll('#checks input:checked')].map(x=>x.parentElement.textContent.trim()).join(', ')||'Ninguno';const text=`INFORME DE CIBERDEFENSA\n================================\nACTIVO: ${t}\nRIESGO: ${risk}\n\nHALLAZGO PRINCIPAL\n${finding}\n\nEVIDENCIA\n${evidence}\n\nCOMPROBACIONES REALIZADAS\n${checked}\n\nRECOMENDACIÓN\n${rec}\n\nCONCLUSIÓN\nLa evidencia debe validarse dentro del alcance autorizado. El objetivo de este análisis es identificar exposición y proponer medidas de reducción de riesgo; no realizar acceso no autorizado.`;document.getElementById('reportBox').textContent=text;document.getElementById('preview').style.display='block'}
+async function copyReport(){generateReport();try{await navigator.clipboard.writeText(document.getElementById('reportBox').textContent);alert('Informe copiado.')}catch(e){alert('Selecciona y copia el informe manualmente.')}}
+function resetLab(){document.querySelectorAll('#checks input').forEach(x=>x.checked=false);document.getElementById('results').innerHTML='';document.getElementById('empty').style.display='block';document.getElementById('target').value='';document.getElementById('rTarget').value='';document.getElementById('badge').textContent='SIN OBJETIVO';document.getElementById('preview').style.display='none'}
+function escapeHtml(s){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+</script>
+</body>
+</html>
