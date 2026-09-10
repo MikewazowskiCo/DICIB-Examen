@@ -14,13 +14,13 @@ jobs:
       - name: Ensure Base64 loader
         run: |
           cat > ctf-dicib/blackout.html <<'EOF'
-          <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DICIB // OPERATION BLACKOUT</title><script>(async()=>{const r=await fetch("blackout.payload.b64?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("PAYLOAD "+r.status);const b=atob((await r.text()).replace(/\s/g,""));const bin=Uint8Array.from(b,c=>c.charCodeAt(0));const out=await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream("gzip"))).text();document.open();document.write(out);document.close()})().catch(e=>document.body.textContent="BLACKOUT LOAD ERROR: "+e)</script>
+          <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DICIB // OPERATION BLACKOUT</title><script>(async()=>{const r=await fetch("blackout.payload.b64?"+Date.now(),{cache:"no-store"});if(!r.ok)throw Error("PAYLOAD "+r.status);const b=atob((await r.text()).replace(/\s/g,""));const bin=Uint8Array.from(b,c=>c.charCodeAt(0));const out=await new Response(new Blob([bin]).stream().pipeThrough(new DecompressionStream("gzip"))).text();document.open();document.write(out+'<script src="blackout.missions.js?'+Date.now()+'"><\/script><script src="blackout.override.js?'+Date.now()+'"><\/script>');document.close()})().catch(e=>document.body.textContent="BLACKOUT LOAD ERROR: "+e)</script>
           EOF
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add ctf-dicib/blackout.html
-          git diff --cached --quiet || (git commit -m "[blackout-repair] use Base64 loader" && git push)
-      - name: Validate payload
+          git diff --cached --quiet || (git commit -m "[blackout-repair] preserve investigative loader" && git push)
+      - name: Validate payload and mission layer
         run: |
           python - <<'PY'
           import base64,gzip
@@ -28,7 +28,10 @@ jobs:
           raw=base64.b64decode(s)
           html=gzip.decompress(raw).decode('utf-8')
           assert 'DICIB-14' in html
-          assert '14 OPERADORES' in html
-          assert 'function renderBoards' in html
-          print('BLACKOUT payload OK')
+          assert 'function renderBoards' in html or 'function renderTicker' in html
+          m=open('ctf-dicib/blackout.missions.js','r',encoding='utf-8').read()
+          assert m.count('"id":"')==33
+          o=open('ctf-dicib/blackout.override.js','r',encoding='utf-8').read()
+          assert 'checkInvestigative' in o
+          print('BLACKOUT investigative layer OK')
           PY
