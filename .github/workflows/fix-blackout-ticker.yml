@@ -2,6 +2,8 @@ name: Fix Blackout ticker
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'ctf-dicib/blackout.html'
 permissions:
   contents: write
 jobs:
@@ -10,24 +12,68 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch ticker
+      - name: Validate HTML and challenge structure
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('ctf-dicib/blackout.html').read_text(encoding='utf-8')
+          checks={
+            '14 operators': s.count("'DICIB-")==14,
+            '14 credentials': s.count("'DICIB-01'")>=2 and s.count("'DICIB-14'")>=2,
+            'flag generator': 'function flagFor(pid,id)' in s,
+            'score +100': 's.score+=100' in s,
+            'penalty -25': 's.score=Math.max(0,s.score-25)' in s,
+            '33 mission capacity': 'const keys=Object.keys(phases),ALL=keys.length*3' in s,
+            'mission input': 'class="input" placeholder="Introduce la BANDERA encontrada"' in s,
+            'ranking render': 'function renderBoards' in s,
+            'score update': 'function update()' in s,
+          }
+          bad=[k for k,v in checks.items() if not v]
+          print(checks)
+          if bad: raise SystemExit('VALIDATION FAILED: '+', '.join(bad))
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('ctf-dicib/blackout.html').read_text(encoding='utf-8')
+          start=s.index('<script>')+8
+          end=s.rindex('</script>')
+          Path('/tmp/blackout.js').write_text(s[start:end],encoding='utf-8')
+          PY
+          node --check /tmp/blackout.js
+      - name: Patch ticker and input hit area
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('ctf-dicib/blackout.html')
           s=p.read_text(encoding='utf-8')
-          s=s.replace('.track{display:flex;width:max-content;animation:move 38s linear infinite}', '.track{display:flex;width:max-content;animation:move 55s linear infinite;will-change:transform}')
-          s=s.replace('.track{display:flex;width:max-content;animation:move 55s linear infinite;will-change:transform}', '.track{display:flex;width:max-content;animation:move 55s linear infinite;will-change:transform}')
-          s=s.replace('.loginBoard{width:min(1200px,100%);margin:28px auto}', '.loginBoard{position:fixed;left:0;right:0;bottom:0;z-index:60;width:auto;margin:0;padding:0 25px 14px;background:linear-gradient(transparent,#050505 30%)}')
-          s=s.replace('.app{display:none;padding:20px 0 70px}', '.app{display:none;padding:20px 0 115px}')
-          s=s.replace('.mainBoard{margin:18px 0}', '.mainBoard{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;margin:0;border-left:0;border-right:0;border-bottom:0;box-shadow:0 -18px 35px #050505aa}')
-          s=s.replace('setInterval(()=>{renderBoards();if(current)update()},1000);', '')
+          old='.mainBoard{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;margin:0;border-left:0;border-right:0;border-bottom:0;box-shadow:0 -18px 35px #050505aa}'
+          new='.mainBoard{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;margin:0;border-left:0;border-right:0;border-bottom:0;box-shadow:0 -18px 35px #050505aa;pointer-events:none}'
+          if old in s: s=s.replace(old,new)
+          elif 'pointer-events:none' not in s[s.find('.mainBoard{'):s.find('.mainBoard{')+500]:
+            raise SystemExit('mainBoard CSS pattern not found')
+          s=s.replace('.mainBoard .track{pointer-events:none}', '.mainBoard .track{pointer-events:none}')
           p.write_text(s,encoding='utf-8')
           PY
+      - name: Validate patched page
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('ctf-dicib/blackout.html').read_text(encoding='utf-8')
+          assert 'pointer-events:none' in s[s.find('.mainBoard{'):s.find('.mainBoard{')+500]
+          assert 'class="input" placeholder="Introduce la BANDERA encontrada"' in s
+          print('BLACKOUT SELF-CHECK: PASS')
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('ctf-dicib/blackout.html').read_text(encoding='utf-8')
+          start=s.index('<script>')+8; end=s.rindex('</script>')
+          Path('/tmp/blackout.js').write_text(s[start:end],encoding='utf-8')
+          PY
+          node --check /tmp/blackout.js
       - name: Commit patch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add ctf-dicib/blackout.html
-          git diff --cached --quiet || git commit -m "fix: continuous sports ticker [blackout-ticker]"
+          git diff --cached --quiet || git commit -m "fix: mission input hit area [blackout-ticker]"
           git push
