@@ -18,7 +18,7 @@ jobs:
           from pathlib import Path
           s=Path('ctf-dicib/blackout.html').read_text(encoding='utf-8')
           checks={
-            '14 operators': s.count("'DICIB-")==14,
+            '14 operators': s.count("['DICIB-")==14,
             '14 credentials': s.count("'DICIB-01'")>=2 and s.count("'DICIB-14'")>=2,
             'flag generator': 'function flagFor(pid,id)' in s,
             'score +100': 's.score+=100' in s,
@@ -26,10 +26,10 @@ jobs:
             '33 mission capacity': 'const keys=Object.keys(phases),ALL=keys.length*3' in s,
             'mission input': 'class="input" placeholder="Introduce la BANDERA encontrada"' in s,
             'ranking render': 'function renderBoards' in s,
-            'score update': 'function update()' in s,
+            'score update': 'function update(){' in s,
           }
-          bad=[k for k,v in checks.items() if not v]
           print(checks)
+          bad=[k for k,v in checks.items() if not v]
           if bad: raise SystemExit('VALIDATION FAILED: '+', '.join(bad))
           PY
           python3 - <<'PY'
@@ -51,7 +51,6 @@ jobs:
           if old in s: s=s.replace(old,new)
           elif 'pointer-events:none' not in s[s.find('.mainBoard{'):s.find('.mainBoard{')+500]:
             raise SystemExit('mainBoard CSS pattern not found')
-          s=s.replace('.mainBoard .track{pointer-events:none}', '.mainBoard .track{pointer-events:none}')
           p.write_text(s,encoding='utf-8')
           PY
       - name: Validate patched page
