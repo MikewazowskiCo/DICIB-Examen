@@ -1,0 +1,41 @@
+name: Blackout input fix
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/blackout-fix-trigger.txt'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix input hit area
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('ctf-dicib/blackout.html')
+          s=p.read_text(encoding='utf-8')
+          old='.mainBoard{position:fixed;left:0;right:0;bottom:0;z-index:40;width:100%;margin:0;border-left:0;border-right:0;border-bottom:0;box-shadow:0 -18px 35px #050505aa}'
+          new=old[:-1]+';pointer-events:none}'
+          if old in s:
+              s=s.replace(old,new,1)
+          p.write_text(s,encoding='utf-8')
+          assert 'pointer-events:none}' in s[s.find('.mainBoard{'):s.find('.mainBoard{')+500]
+          print('INPUT HIT AREA FIX: PASS')
+          PY
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('ctf-dicib/blackout.html').read_text(encoding='utf-8')
+          a=s.index('<script>')+8; b=s.rindex('</script>')
+          Path('/tmp/blackout.js').write_text(s[a:b],encoding='utf-8')
+          PY
+          node --check /tmp/blackout.js
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ctf-dicib/blackout.html
+          git diff --cached --quiet || git commit -m 'fix: unblock blackout mission inputs'
+          git push
