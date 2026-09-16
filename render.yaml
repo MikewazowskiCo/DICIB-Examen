@@ -15,14 +15,6 @@ services:
         fromDatabase:
           name: dicib-db
           property: connectionString
-      - key: ALFA_PASSWORD
-        sync: false
-      - key: BRAVO_PASSWORD
-        sync: false
-      - key: CHARLIE_PASSWORD
-        sync: false
-      - key: DELTA_PASSWORD
-        sync: false
       - key: ADMIN_USER
         value: WAZOWSKI
       - key: ADMIN_PASSWORD
