@@ -20,7 +20,7 @@ const PLAYERS = [
  ['DICIB-01','Cap AvC','María Eugenia Ruiz Diaz Samaniego'],['DICIB-02','Cap AvC','Rita Maria Montiel Florenciano'],['DICIB-03','Tte 1° AvC','Hugo Manuel Sosa Ramírez'],['DICIB-04','Tte AvC','Walter Osmar Escurra Ojeda'],['DICIB-05','SO Tec','Gustavo Ariel Vera Lugo'],['DICIB-06','SO Avc','Pablo Cesar Escurra Ferreira'],['DICIB-07','Sgto A Tec','Julio Cesar Franco Jacquet'],['DICIB-08','Sgto A Tec','Miguel Ángel Jara Medina'],['DICIB-09','Sgto A Tec','Melanio Parra Martínez'],['DICIB-10','Sgto A Tec','Héctor Rolando Garcete Pereira'],['DICIB-11','Sgto A Tec','Miguela López Ortega'],['DICIB-12','Sgto A Tec','Lizandra Belen Carreras Román'],['DICIB-13','Sgto 1° Tec','Héctor Raul Amarilla Cardozo'],['DICIB-14','VSgto 1° Avc','Jorge Luis López']
 ];
 
-// Preguntas de opción múltiple basadas únicamente en Nmap, Shodan, BlackEye y Wireshark.
+// Banco de conocimiento trabajado: Nmap, Shodan, BlackEye y Wireshark.
 const QUESTIONS = [
  {id:'Q01',topic:'NMAP',q:'¿Qué opción de Nmap realiza descubrimiento de hosts sin escanear puertos?',options:['-sn','-sV','-O','-A'],answer:0},
  {id:'Q02',topic:'NMAP',q:'¿Qué opción de Nmap intenta identificar las versiones de los servicios?',options:['-Pn','-sV','-sn','-F'],answer:1},
@@ -31,7 +31,17 @@ const QUESTIONS = [
  {id:'Q07',topic:'BLACKEYE',q:'Dentro del bloque Linux trabajado en el curso, ¿qué proyecto se utilizó?',options:['BlackEye','Metasploit','Hydra','John'],answer:0},
  {id:'Q08',topic:'BLACKEYE',q:'En el laboratorio de BlackEye, ¿qué se presenta para la práctica controlada?',options:['Una página de acceso simulada','Un firewall real','Un servidor DNS público','Un escáner de puertos'],answer:0},
  {id:'Q09',topic:'WIRESHARK',q:'¿Qué filtro de Wireshark muestra tráfico HTTP?',options:['tcp.http','http','web','proto:http'],answer:1},
- {id:'Q10',topic:'WIRESHARK',q:'¿Qué función de Wireshark permite reconstruir una conversación TCP?',options:['Decode As','Follow TCP Stream','Expert Info','Capture Filters'],answer:1}
+ {id:'Q10',topic:'WIRESHARK',q:'¿Qué función de Wireshark permite reconstruir una conversación TCP?',options:['Decode As','Follow TCP Stream','Expert Info','Capture Filters'],answer:1},
+ {id:'Q11',topic:'NMAP',q:'¿Qué opción solicita detección del sistema operativo cuando se cuenta con los permisos necesarios?',options:['-O','-sC','-p','-n'],answer:0},
+ {id:'Q12',topic:'NMAP',q:'¿Qué opción permite especificar puertos concretos para el reconocimiento?',options:['-p','-iL','-T0','-v'],answer:0},
+ {id:'Q13',topic:'SHODAN',q:'¿Qué operador de Shodan permite combinar términos para limitar una búsqueda por organización?',options:['org:','owner:','company=','entity:'],answer:0},
+ {id:'Q14',topic:'SHODAN',q:'¿Qué filtro de Shodan se relaciona directamente con un sistema autónomo de Internet?',options:['asn:','autonomous:','netid:','route:'],answer:0},
+ {id:'Q15',topic:'BLACKEYE',q:'¿Cuál es el propósito académico de una página de acceso simulada en un laboratorio?',options:['Practicar reconocimiento y análisis en un entorno controlado','Capturar credenciales reales','Atacar servicios públicos','Evitar controles de seguridad'],answer:0},
+ {id:'Q16',topic:'BLACKEYE',q:'Antes de ejecutar una práctica de BlackEye, ¿qué condición debe cumplirse?',options:['Contar con autorización y entorno de laboratorio','Usar una cuenta real','Publicar la página en Internet','Eliminar los registros'],answer:0},
+ {id:'Q17',topic:'WIRESHARK',q:'¿Qué filtro permite localizar tráfico de una dirección IP concreta?',options:['ip.addr == 10.20.1.10','host:10.20.1.10','address=10.20.1.10','srcip:10.20.1.10'],answer:0},
+ {id:'Q18',topic:'WIRESHARK',q:'¿Qué elemento ayuda a identificar rápidamente protocolos y conversaciones en una captura?',options:['Protocol Hierarchy','Paint Format','Page Setup','Spell Check'],answer:0},
+ {id:'Q19',topic:'WIRESHARK',q:'En una investigación de laboratorio, ¿qué debe hacerse primero ante un tráfico HTTP sospechoso?',options:['Preservar la captura y analizar el contexto','Modificar la captura original','Borrar paquetes','Conectarse al destino'],answer:0},
+ {id:'Q20',topic:'NMAP',q:'En reconocimiento autorizado, ¿qué principio debe guiar la selección de objetivos?',options:['Limitarse a activos autorizados','Escanear cualquier IP disponible','Evitar documentar resultados','Usar siempre la máxima velocidad'],answer:0}
 ];
 
 const ADMIN_USER = (process.env.ADMIN_USER || 'WAZOWSKI').trim().toUpperCase();
@@ -96,7 +106,7 @@ app.post('/api/questions/answer',auth,playerOnly,async(req,res)=>{
  res.json({correct:false,penalty:50,state:await playerState(p.id)});
 });
 
-// Panel exclusivo del administrador: se actualiza cada 2 segundos desde el navegador.
+// Panel exclusivo del administrador: se actualiza desde el navegador.
 app.get('/api/admin/dashboard',auth,adminOnly,async(_req,res)=>{
  const players=await dashboardState();
  const totals=players.reduce((a,p)=>(a.score+=p.score,a.solved+=p.solved,a.errors+=p.errors,a),{score:0,solved:0,errors:0});
